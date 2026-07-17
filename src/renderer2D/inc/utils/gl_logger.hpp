@@ -65,3 +65,31 @@ inline void log_gl_errors(
     {                                                                 \
         ::log_gl_errors((operation), __FILE__, __LINE__);             \
     } while (false)
+
+
+[[nodiscard]] inline bool has_gl_errors(
+    char const* operation,
+    char const* file,
+    int line) noexcept
+{
+    bool hasErrors = false;
+    GLenum error = GL_NO_ERROR;
+
+    while ((error = glGetError()) != GL_NO_ERROR)
+    {
+        hasErrors = true;
+
+        LOG_ERROR(
+            "{}:{} - OpenGL error after {}: {} ({})",
+            file,
+            line,
+            operation,
+            gl_error_string(error),
+            static_cast<unsigned int>(error));
+    }
+
+    return hasErrors;
+}
+
+#define HAS_GL_ERROR(operation)                                      \
+    (::has_gl_errors((operation), __FILE__, __LINE__))
