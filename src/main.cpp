@@ -6,60 +6,72 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "renderer2D/inc/renderer2D.h"
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include "sceneManager/sceneManager.h"
 
-
-
-int main()
+#pragma region ImGui lifecycle funcs
+void initImGUI()
 {
-    R2D::Renderer2D::Init(1280, 720);
-
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
     ImGui::StyleColorsDark();
 
-    ImGui_ImplGlfw_InitForOpenGL(R2D::Renderer2D::GetGLFWwindow() , true);
+    ImGui_ImplGlfw_InitForOpenGL(R2D::Renderer2D::GetGLFWwindow(), true);
     ImGui_ImplOpenGL3_Init("#version 460");
+}
+void BeginFrameImGUI()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+void EndFrameImGUI()
+{
+    ImGui::Render();
 
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
+    }
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+void shutdownImGUI()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+#pragma endregion
+
+int main()
+{
+    R2D::Renderer2D::Init(1280, 720);
+    initImGUI();
+    SceneManager::getInstance()->setCurrentScene(0); 
 
     while (!R2D::Renderer2D::GetShouldGLFWWindowClose())
     {
         R2D::Renderer2D::BeginFrame();
-
         R2D::Renderer2D::PollGLEvents();
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        BeginFrameImGUI();
 
         {
             // render things here
-            // Test render imgui demo
+            SceneManager::getInstance()->updateCurrentScene();
             ImGui::ShowDemoWindow();
         }
 
-        ImGui::Render();
-
-        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-            GLFWwindow* backup_current_context = glfwGetCurrentContext();
-            ImGui::UpdatePlatformWindows();
-            ImGui::RenderPlatformWindowsDefault();
-            glfwMakeContextCurrent(backup_current_context);
-        }
-
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        EndFrameImGUI();
 
         R2D::Renderer2D::EndFrame();
     }
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
+    SceneManager::getInstance()->cleanup(); 
+    shutdownImGUI();
     R2D::Renderer2D::Shutdown();
     return 0;
 }
