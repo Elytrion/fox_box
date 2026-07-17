@@ -1,6 +1,7 @@
 #include "sceneManager.h"
+#include <algorithm>
 
-Scene::Scene()
+Scene::Scene(int orderPriority) : m_sceneOrderPriority{ orderPriority }
 {
 	SceneManager::getInstance()->registerScene(this);
 }
@@ -14,6 +15,7 @@ SceneManager* SceneManager::m_instance = nullptr;
 void SceneManager::registerScene(Scene* scene)
 {
 	m_scenes.push_back(scene);
+	sortScenes();
 }
 
 void SceneManager::unregisterScene(Scene* scene)
@@ -25,11 +27,16 @@ void SceneManager::unregisterScene(Scene* scene)
 	if (it != m_scenes.end()) {
 		m_scenes.erase(it);
 	}
+
+	sortScenes();
 }
 
 void SceneManager::setCurrentScene(int index)
 {
 	if (!m_scenes.size())
+		return;
+
+	if (index < 0 || static_cast<std::size_t>(index) >= m_scenes.size())
 		return;
 
 	Scene* currScene = m_scenes[m_currentSceneIndex];
@@ -40,6 +47,7 @@ void SceneManager::setCurrentScene(int index)
 	if (newScene)
 		newScene->init();
 }
+
 void SceneManager::setNextScene()
 {
 	if (!m_scenes.size())
@@ -48,6 +56,7 @@ void SceneManager::setNextScene()
 	int nxtIndex = (m_currentSceneIndex + 1) % m_scenes.size();
 	setCurrentScene(nxtIndex);
 }
+
 void SceneManager::updateCurrentScene()
 {
 	if (!m_scenes.size())
@@ -59,4 +68,41 @@ void SceneManager::updateCurrentScene()
 		return;
 	}
 	currScene->update();
+}
+
+void SceneManager::changeSceneOrderPriority(Scene* scene, int order)
+{
+	scene->m_sceneOrderPriority = order;
+	sortScenes();
+}
+
+void SceneManager::sortScenes()
+{	
+	Scene* currentScene = nullptr;
+	
+	if (m_currentSceneIndex >= 0 && static_cast<std::size_t>(m_currentSceneIndex) < m_scenes.size())
+	{
+		currentScene = m_scenes[m_currentSceneIndex];
+	}
+	
+	std::stable_sort(
+		m_scenes.begin(),
+		m_scenes.end(),
+		[](const Scene* lhs, const Scene* rhs)
+		{
+			return lhs->m_sceneOrderPriority < rhs->m_sceneOrderPriority;
+		});
+	
+	if (currentScene) // reset m_currentSceneIndex to new ordering
+	{
+		const auto it = std::find(
+			m_scenes.begin(),
+			m_scenes.end(),
+			currentScene);
+
+		if (it != m_scenes.end())
+		{
+			m_currentSceneIndex = static_cast<int>(std::distance(m_scenes.begin(), it));
+		}
+	}
 }

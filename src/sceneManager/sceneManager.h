@@ -4,12 +4,16 @@
 class Scene
 {
 public:
-	Scene();
+	Scene(int orderPriority = -1);
 	~Scene();
 
 	virtual void init() = 0;
 	virtual void update() = 0;
 	virtual void exit() = 0;
+
+private:
+	friend class SceneManager;
+	int m_sceneOrderPriority{ -1 };
 };
 
 class SceneManager
@@ -27,6 +31,7 @@ public:
 	void setNextScene();
 	void setCurrentScene(int index);
 	void updateCurrentScene();
+	void changeSceneOrderPriority(Scene* scene, int order);
 	void cleanup()
 	{
 		for (auto scene : m_scenes)
@@ -39,6 +44,7 @@ public:
 	}
 
 private:
+	void sortScenes();
 	static SceneManager* m_instance;
 	int m_currentSceneIndex{ 0 };
 	std::vector<Scene*> m_scenes{};

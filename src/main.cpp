@@ -63,7 +63,7 @@ int main()
         {
             // render things here
             SceneManager::getInstance()->updateCurrentScene();
-            ImGui::ShowDemoWindow();
+            //ImGui::ShowDemoWindow();
         }
 
         EndFrameImGUI();
