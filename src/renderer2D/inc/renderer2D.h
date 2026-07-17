@@ -55,6 +55,8 @@ namespace R2D
 		static void SignalGLFWWindowClose();
 		static void SignalGLFWWindowFocus();
 
+		static void SetWindowTitle(const std::string& title);
+
 	private:
 		struct RenderContext;
 		static RenderContext m_context;

@@ -194,4 +194,10 @@ namespace R2D
 		glfwFocusWindow(m_context.window);
 		glfwRequestWindowAttention(m_context.window);
 	}
+
+	void Renderer2D::SetWindowTitle(const std::string& title)
+	{
+		m_windowTitle = title;
+		glfwSetWindowTitle(m_context.window, m_windowTitle.c_str());
+	}
 }

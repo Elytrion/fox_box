@@ -51,6 +51,7 @@ void shutdownImGUI()
 int main()
 {
     R2D::Renderer2D::Init(1280, 720);
+    R2D::Renderer2D::SetWindowTitle("Fox Box - 2D Physics Engine");
     initImGUI();
     SceneManager::getInstance()->setCurrentScene(0); 
 
