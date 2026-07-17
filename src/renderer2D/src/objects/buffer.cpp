@@ -1,10 +1,10 @@
 #include "renderer2d/inc/objects/buffer.hpp"
 #include "renderer2d/inc/utils/gl_logger.hpp"
-
+#include "renderer2D/inc/renderer2D.h"
 
 namespace R2D
 {
-	static BufferHandle m_bufferCounter{ 1 }; //TODOJ: move this to central renderer2D class when made
+
 
 	bool Buffer::destroy()
 	{
@@ -125,7 +125,7 @@ namespace R2D
 
 		m_initialised = true;
 
-		m_handle = ++m_bufferCounter;
+		m_handle = Renderer2D::registerBuffer();
 		return true;
 	}
 
