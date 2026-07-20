@@ -64,7 +64,6 @@ int main()
         {
             // render things here
             SceneManager::getInstance()->updateCurrentScene();
-            //ImGui::ShowDemoWindow();
         }
 
         EndFrameImGUI();
