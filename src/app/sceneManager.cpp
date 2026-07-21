@@ -76,6 +76,19 @@ void SceneManager::changeSceneOrderPriority(Scene* scene, int order)
 	sortScenes();
 }
 
+Scene* SceneManager::getCurrentScene()
+{
+	if (
+		m_currentSceneIndex < 0 ||
+		static_cast<std::size_t>(m_currentSceneIndex) >= m_scenes.size()
+		)
+	{
+		return nullptr;
+	}
+	
+	return m_scenes[m_currentSceneIndex];
+}
+
 void SceneManager::sortScenes()
 {	
 	Scene* currentScene = nullptr;
@@ -105,4 +118,67 @@ void SceneManager::sortScenes()
 			m_currentSceneIndex = static_cast<int>(std::distance(m_scenes.begin(), it));
 		}
 	}
+}
+
+void SceneManager::setupInputCallbacks()
+{
+	m_keyDownCallbackHandle =
+		R2D::Renderer2D::AddKeyDownCallback(
+			[this](const R2D::KeyEvent& event)
+			{
+				if (Scene* scene = getCurrentScene())
+					scene->onKeyDown(event);
+			}
+		);
+
+	m_keyUpCallbackHandle =
+		R2D::Renderer2D::AddKeyUpCallback(
+			[this](const R2D::KeyEvent& event)
+			{
+				if (Scene* scene = getCurrentScene())
+					scene->onKeyUp(event);
+			}
+		);
+
+	m_mouseButtonCallbackHandle =
+		R2D::Renderer2D::AddMouseButtonCallback(
+			[this](const R2D::MouseEvent& event)
+			{
+				if (Scene* scene = getCurrentScene())
+					scene->onMouseButton(event);
+			}
+		);
+
+	m_mouseMoveCallbackHandle =
+		R2D::Renderer2D::AddMouseMoveCallback(
+			[this](const R2D::MouseEvent& event)
+			{
+				if (Scene* scene = getCurrentScene())
+					scene->onMouseMove(event);
+			}
+		);
+
+	m_mouseScrollCallbackHandle =
+		R2D::Renderer2D::AddMouseScrollCallback(
+			[this](const R2D::MouseEvent& event)
+			{
+				if (Scene* scene = getCurrentScene())
+					scene->onMouseScroll(event);
+			}
+		);
+}
+
+void SceneManager::cleanupInputCallbacks()
+{
+	R2D::Renderer2D::RemoveCallback(m_keyDownCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_keyUpCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_mouseButtonCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_mouseMoveCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_mouseScrollCallbackHandle);
+
+	m_keyDownCallbackHandle = 0;
+	m_keyUpCallbackHandle = 0;
+	m_mouseButtonCallbackHandle = 0;
+	m_mouseMoveCallbackHandle = 0;
+	m_mouseScrollCallbackHandle = 0;
 }

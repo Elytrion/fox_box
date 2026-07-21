@@ -57,6 +57,7 @@ int main()
 	GlobalCamera::Init();
     DrawTool::Init();
     SceneManager::getInstance()->setCurrentScene(0); 
+    SceneManager::getInstance()->setupInputCallbacks();
 
     while (!R2D::Renderer2D::GetShouldGLFWWindowClose())
     {
@@ -74,6 +75,7 @@ int main()
 
         R2D::Renderer2D::EndFrame();
     }
+    SceneManager::getInstance()->cleanupInputCallbacks();
     SceneManager::getInstance()->cleanup(); 
     DrawTool::Cleanup();
 	GlobalCamera::CleanUp();
