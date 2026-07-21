@@ -11,16 +11,30 @@ namespace R2D
 	class Buffer;
 	class VertexArray;
 
+	enum class MouseButton : uint8_t
+	{
+		LEFT = GLFW_MOUSE_BUTTON_1,
+		RIGHT = GLFW_MOUSE_BUTTON_2,
+		MIDDLE = GLFW_MOUSE_BUTTON_3,
+		INVALID = 255,
+	};
+	enum class MouseAction : uint8_t
+	{
+		RELEASE = GLFW_RELEASE,
+		PRESS = GLFW_PRESS,
+		REPEAT = GLFW_REPEAT,
+		INVALID = 255,
+	};
+	struct MouseEvent
+	{
+		MouseButton button{ MouseButton::INVALID };
+		MouseAction action{ MouseAction::INVALID };
+		glm::ivec2  cursorPos{ 0, 0 };
+		glm::vec2   scroll{ 0.f, 0.f };
+	};
+
 	class Renderer2D
 	{
-	public:
-		using KeyCallbackFnType = std::function<void(int, int, int)>;
-		using MouseButtonCallbackFnType = std::function<void(int, int, int)>;
-		using CursorPosCallbackFnType = std::function<void(float, float)>;
-		using ScrollCallbackFnType = std::function<void(double, double)>;
-		using WindowSizeCallbackFnType = std::function<void(int, int)>;
-		using WindowCloseCallbackFnType = std::function<void()>;
-
 	public:
 
 		static void Init(uint32_t width, uint32_t height);
@@ -58,14 +72,17 @@ namespace R2D
 		static void SetWindowTitle(const std::string& title);
 
 	private:
+		static void KeyPressCallback(GLFWwindow* window, int key, int scanCode, int action, int mode);
+		static void MouseButtonPressCallback(GLFWwindow* window, int button, int action, int mods);
+		static void CursorPosCallback(GLFWwindow* window, double x, double y);
+		static void ScrollCallback(GLFWwindow* window, double x, double y);
+		static void WindowSizeCallback(GLFWwindow* window, int width, int height);
+
 		struct RenderContext;
 		static RenderContext m_context;
 
 		static std::string m_windowTitle;
 
-
 		static BufferHandle m_bufferCounter;
-
-
 	};
 }

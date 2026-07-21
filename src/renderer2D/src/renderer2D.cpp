@@ -14,6 +14,14 @@ namespace
 	{
 		std::fprintf(stderr, "GLFW Error %d: %s\n", error, desc);
 	}
+
+	static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+	{
+		glViewport(0, 0, width, height);
+	}
+
+	static bool g_isMouseHeld{ false };
+	static glm::ivec2 g_cursorPos{ 0, 0 };
 }
 
 namespace R2D
@@ -67,6 +75,14 @@ namespace R2D
 		m_context.width = static_cast<uint32_t>(cwidth);
 		m_context.height = static_cast<uint32_t>(cheight);
 		glViewport(0, 0, m_context.width, m_context.height);
+
+
+		glfwSetKeyCallback(m_context.window, KeyPressCallback);
+		glfwSetMouseButtonCallback(m_context.window, MouseButtonPressCallback);
+		glfwSetCursorPosCallback(m_context.window, CursorPosCallback);
+		glfwSetScrollCallback(m_context.window, ScrollCallback);
+		glfwSetFramebufferSizeCallback(m_context.window, framebuffer_size_callback);
+		glfwSetWindowSizeCallback(m_context.window, WindowSizeCallback);
 	}
 
 	void Renderer2D::Shutdown()
@@ -199,5 +215,61 @@ namespace R2D
 	{
 		m_windowTitle = title;
 		glfwSetWindowTitle(m_context.window, m_windowTitle.c_str());
+	}
+
+	void Renderer2D::KeyPressCallback(GLFWwindow* window, int key, int scanCode, int action, int mode)
+	{
+		if (action == GLFW_PRESS || action == GLFW_REPEAT)
+		{
+			// call all key down events
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			// call all key up events
+		}
+	}
+
+	void Renderer2D::MouseButtonPressCallback(GLFWwindow* window, int button, int action, int mods)
+	{
+		if (action == GLFW_RELEASE && g_isMouseHeld)
+		{
+			g_isMouseHeld = false;
+		}
+		else if (action == GLFW_PRESS)
+		{
+			g_isMouseHeld = true;
+		}
+
+		auto const evt = MouseEvent{ static_cast<MouseButton>(button), static_cast<MouseAction>(action), g_cursorPos };
+
+		// call all mouse button events
+	}
+
+	void Renderer2D::CursorPosCallback(GLFWwindow* window, double x, double y)
+	{
+		MouseEvent evt;
+		if (g_isMouseHeld)
+		{
+			evt.action = MouseAction::REPEAT;
+		}
+		evt.cursorPos.x = x;
+		evt.cursorPos.y = y;
+		g_cursorPos.x = x;
+		g_cursorPos.y = y;
+
+		// call all mouse move events
+	}
+
+	void Renderer2D::ScrollCallback(GLFWwindow* window, double x, double y)
+	{
+		// call all mouse scroll events
+	}
+
+	void Renderer2D::WindowSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		m_context.width = width;
+		m_context.height = height;
+
+		// call all window resize events
 	}
 }
