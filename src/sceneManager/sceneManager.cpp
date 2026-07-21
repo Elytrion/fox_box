@@ -4,10 +4,28 @@
 Scene::Scene(int orderPriority) : m_sceneOrderPriority{ orderPriority }
 {
 	SceneManager::getInstance()->registerScene(this);
+
+	m_keyDownCallbackHandle = R2D::Renderer2D::AddKeyDownCallback([this](const R2D::KeyEvent& event) { onKeyDown(event); });
+	m_keyUpCallbackHandle = R2D::Renderer2D::AddKeyUpCallback([this](const R2D::KeyEvent& event) { onKeyUp(event); });
+	m_mouseButtonCallbackHandle = R2D::Renderer2D::AddMouseButtonCallback([this](const R2D::MouseEvent& event) { onMouseButton(event); });
+	m_mouseMoveCallbackHandle = R2D::Renderer2D::AddMouseMoveCallback([this](const R2D::MouseEvent& event) { onMouseMove(event); });
+	m_mouseScrollCallbackHandle = R2D::Renderer2D::AddMouseScrollCallback([this](const R2D::MouseEvent& event) { onMouseScroll(event); });
 }
 Scene::~Scene()
 {
 	SceneManager::getInstance()->unregisterScene(this);
+
+	R2D::Renderer2D::RemoveCallback(m_keyDownCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_keyUpCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_mouseButtonCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_mouseMoveCallbackHandle);
+	R2D::Renderer2D::RemoveCallback(m_mouseScrollCallbackHandle);
+
+	m_keyDownCallbackHandle = 0;
+	m_keyUpCallbackHandle = 0;
+	m_mouseButtonCallbackHandle = 0;
+	m_mouseMoveCallbackHandle = 0;
+	m_mouseScrollCallbackHandle = 0;
 }
 
 SceneManager* SceneManager::m_instance = nullptr;

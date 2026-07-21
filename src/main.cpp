@@ -5,7 +5,6 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include "renderer2D/inc/renderer2D.h"
 #include "sceneManager/sceneManager.h"
 
 #pragma region ImGui lifecycle funcs

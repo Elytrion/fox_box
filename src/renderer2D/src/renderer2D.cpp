@@ -32,6 +32,13 @@ namespace R2D
 		uint32_t width;
 
 		GLFWwindow* window;
+
+		std::vector<std::pair<EventHandle, KeyCallback>> keyDownCallbacks;
+		std::vector<std::pair<EventHandle, KeyCallback>> keyUpCallbacks;
+		std::vector<std::pair<EventHandle, MouseCallback>> mouseButtonCallbacks;
+		std::vector<std::pair<EventHandle, MouseCallback>> mouseMoveCallbacks;
+		std::vector<std::pair<EventHandle, MouseCallback>> mouseScrollCallbacks;
+		EventHandle nextEventHandle{ 1 };
 	};
 	Renderer2D::RenderContext Renderer2D::m_context;
 	std::string Renderer2D::m_windowTitle{ "Renderer2D" };
@@ -222,10 +229,20 @@ namespace R2D
 		if (action == GLFW_PRESS || action == GLFW_REPEAT)
 		{
 			// call all key down events
+			for (auto const& [handle, callback] : m_context.keyDownCallbacks)
+			{
+				KeyEvent evt{ key, scanCode, static_cast<InputAction>(action), mode };
+				callback(evt);
+			}
 		}
 		else if (action == GLFW_RELEASE)
 		{
 			// call all key up events
+			for (auto const& [handle, callback] : m_context.keyUpCallbacks)
+			{
+				KeyEvent evt{ key, scanCode, static_cast<InputAction>(action), mode };
+				callback(evt);
+			}
 		}
 	}
 
@@ -240,9 +257,13 @@ namespace R2D
 			g_isMouseHeld = true;
 		}
 
-		auto const evt = MouseEvent{ static_cast<MouseButton>(button), static_cast<MouseAction>(action), g_cursorPos };
+		auto const evt = MouseEvent{ static_cast<MouseButton>(button), static_cast<InputAction>(action), g_cursorPos };
 
 		// call all mouse button events
+		for (auto const& [handle, callback] : m_context.mouseButtonCallbacks)
+		{
+			callback(evt);
+		}
 	}
 
 	void Renderer2D::CursorPosCallback(GLFWwindow* window, double x, double y)
@@ -250,7 +271,7 @@ namespace R2D
 		MouseEvent evt;
 		if (g_isMouseHeld)
 		{
-			evt.action = MouseAction::REPEAT;
+			evt.action = InputAction::REPEAT;
 		}
 		evt.cursorPos.x = x;
 		evt.cursorPos.y = y;
@@ -258,18 +279,57 @@ namespace R2D
 		g_cursorPos.y = y;
 
 		// call all mouse move events
+		for (auto const& [handle, callback] : m_context.mouseMoveCallbacks)
+		{
+			callback(evt);
+		}
 	}
 
 	void Renderer2D::ScrollCallback(GLFWwindow* window, double x, double y)
 	{
 		// call all mouse scroll events
+		for (auto const& [handle, callback] : m_context.mouseScrollCallbacks)
+		{
+			MouseEvent evt;
+			evt.scroll.x = x;
+			evt.scroll.y = y;
+			callback(evt);
+		}
 	}
 
 	void Renderer2D::WindowSizeCallback(GLFWwindow* window, int width, int height)
 	{
 		m_context.width = width;
 		m_context.height = height;
+	}
 
-		// call all window resize events
+
+	EventHandle Renderer2D::AddKeyUpCallback(KeyCallback&& callback)
+	{
+		return AddCallback(m_context.keyUpCallbacks, m_context.nextEventHandle, std::move(callback));
+	}
+	EventHandle Renderer2D::AddKeyDownCallback(KeyCallback&& callback)
+	{
+		return AddCallback(m_context.keyDownCallbacks, m_context.nextEventHandle, std::move(callback));
+	}
+	EventHandle Renderer2D::AddMouseButtonCallback(MouseCallback&& callback)
+	{
+		return AddCallback(m_context.mouseButtonCallbacks, m_context.nextEventHandle, std::move(callback));
+	}
+	EventHandle Renderer2D::AddMouseMoveCallback(MouseCallback&& callback)
+	{
+		return AddCallback(m_context.mouseMoveCallbacks, m_context.nextEventHandle, std::move(callback));
+	}
+	EventHandle Renderer2D::AddMouseScrollCallback(MouseCallback&& callback)
+	{
+		return AddCallback(m_context.mouseScrollCallbacks, m_context.nextEventHandle, std::move(callback));
+	}
+	void Renderer2D::RemoveCallback(EventHandle handle)
+	{
+		RemoveCallback(m_context.keyUpCallbacks, handle);
+		RemoveCallback(m_context.keyDownCallbacks, handle);
+		RemoveCallback(m_context.mouseButtonCallbacks, handle);
+		RemoveCallback(m_context.mouseMoveCallbacks, handle);
+		RemoveCallback(m_context.mouseScrollCallbacks, handle);
 	}
 }

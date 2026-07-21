@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "renderer2D/inc/renderer2D.h"
 
 class Scene
 {
@@ -11,9 +12,20 @@ public:
 	virtual void update() = 0;
 	virtual void exit() = 0;
 
+	virtual void onKeyDown(const R2D::KeyEvent& event) {}
+	virtual void onKeyUp(const R2D::KeyEvent& event) {}
+	virtual void onMouseButton(const R2D::MouseEvent& event) {}
+	virtual void onMouseMove(const R2D::MouseEvent& event) {}
+	virtual void onMouseScroll(const R2D::MouseEvent& event) {}
+
 private:
 	friend class SceneManager;
 	int m_sceneOrderPriority{ -1 };
+	R2D::EventHandle m_keyDownCallbackHandle{ 0 };
+	R2D::EventHandle m_keyUpCallbackHandle{ 0 };
+	R2D::EventHandle m_mouseButtonCallbackHandle{ 0 };
+	R2D::EventHandle m_mouseMoveCallbackHandle{ 0 };
+	R2D::EventHandle m_mouseScrollCallbackHandle{ 0 };
 };
 
 class SceneManager

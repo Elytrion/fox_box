@@ -11,6 +11,7 @@ namespace R2D
 	class Buffer;
 	class VertexArray;
 
+	using EventHandle = uint64_t;
 	enum class MouseButton : uint8_t
 	{
 		LEFT = GLFW_MOUSE_BUTTON_1,
@@ -18,7 +19,7 @@ namespace R2D
 		MIDDLE = GLFW_MOUSE_BUTTON_3,
 		INVALID = 255,
 	};
-	enum class MouseAction : uint8_t
+	enum class InputAction : uint8_t
 	{
 		RELEASE = GLFW_RELEASE,
 		PRESS = GLFW_PRESS,
@@ -28,10 +29,19 @@ namespace R2D
 	struct MouseEvent
 	{
 		MouseButton button{ MouseButton::INVALID };
-		MouseAction action{ MouseAction::INVALID };
+		InputAction action{ InputAction::INVALID };
 		glm::ivec2  cursorPos{ 0, 0 };
 		glm::vec2   scroll{ 0.f, 0.f };
 	};
+	struct KeyEvent
+	{
+		int key{};
+		int scanCode{};
+		InputAction action{ InputAction::INVALID };
+		int mods{};
+	};
+	using KeyCallback = std::function<void(const KeyEvent&)>;
+	using MouseCallback = std::function<void(const MouseEvent&)>;
 
 	class Renderer2D
 	{
@@ -49,7 +59,6 @@ namespace R2D
 		static void ClearColour(float red = 0.1f, float green = 0.12f, float blue = 0.15f, float alpha = 1.f);
 		static void ClearDepth(float value = 1.f);
 		static void Clear();
-
 
 		// Drawing function
 		static void drawArraysEmpty(uint32_t vertexCount, uint32_t firstVertex = 0, DRAW_MODE mode = DRAW_MODE::TRIANGLES);
@@ -71,12 +80,47 @@ namespace R2D
 
 		static void SetWindowTitle(const std::string& title);
 
+		static EventHandle AddKeyUpCallback(KeyCallback&& callback);
+		static EventHandle AddKeyDownCallback(KeyCallback&& callback);
+		static EventHandle AddMouseButtonCallback(MouseCallback&& callback);
+		static EventHandle AddMouseMoveCallback(MouseCallback&& callback);
+		static EventHandle AddMouseScrollCallback(MouseCallback&& callback);
+		static void RemoveCallback(EventHandle handle);
+
 	private:
 		static void KeyPressCallback(GLFWwindow* window, int key, int scanCode, int action, int mode);
 		static void MouseButtonPressCallback(GLFWwindow* window, int button, int action, int mods);
 		static void CursorPosCallback(GLFWwindow* window, double x, double y);
 		static void ScrollCallback(GLFWwindow* window, double x, double y);
 		static void WindowSizeCallback(GLFWwindow* window, int width, int height);
+
+		template<typename CallbackList, typename Callback>
+		static EventHandle AddCallback(
+			CallbackList& callbacks,
+			EventHandle& nextHandle,
+			Callback&& callback
+		)
+		{
+			const auto handle = nextHandle++;
+			callbacks.emplace_back(handle, std::forward<Callback>(callback));
+			return handle;
+		}
+
+		template<typename CallbackList>
+		static void RemoveCallback(CallbackList& callbacks, EventHandle handle)
+		{
+			callbacks.erase(
+				std::remove_if(
+					callbacks.begin(),
+					callbacks.end(),
+					[handle](const auto& entry)
+					{
+						return entry.first == handle;
+					}
+				),
+				callbacks.end()
+			);
+		}
 
 		struct RenderContext;
 		static RenderContext m_context;
