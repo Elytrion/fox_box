@@ -6,6 +6,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "sceneManager/sceneManager.h"
+#include "sceneManager/globalCamera.h"
 
 #pragma region ImGui lifecycle funcs
 void initImGUI()
@@ -52,6 +53,7 @@ int main()
     R2D::Renderer2D::Init(1280, 720);
     R2D::Renderer2D::SetWindowTitle("Fox Box - 2D Physics Engine");
     initImGUI();
+	GlobalCamera::Init();
     SceneManager::getInstance()->setCurrentScene(0); 
 
     while (!R2D::Renderer2D::GetShouldGLFWWindowClose())
@@ -59,7 +61,8 @@ int main()
         R2D::Renderer2D::BeginFrame();
         R2D::Renderer2D::PollGLEvents();
         BeginFrameImGUI();
-
+		GlobalCamera::UpdateUniformBuffer();
+		GlobalCamera::BindUniformBuffer();
         {
             // render things here
             SceneManager::getInstance()->updateCurrentScene();
@@ -70,6 +73,7 @@ int main()
         R2D::Renderer2D::EndFrame();
     }
     SceneManager::getInstance()->cleanup(); 
+	GlobalCamera::CleanUp();
     shutdownImGUI();
     R2D::Renderer2D::Shutdown();
     return 0;

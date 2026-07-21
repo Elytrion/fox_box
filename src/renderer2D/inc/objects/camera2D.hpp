@@ -63,6 +63,9 @@ namespace R2D
 			return screenDelta / m_zoom;
 		}
 
+		glm::vec2 getPosition() const { return m_position; }
+		float getZoom() const { return m_zoom; }
+
 	private:
 		glm::vec2 m_position{ 0.f, 0.f };
 		glm::uvec2 m_viewport{ 1280, 720 };

@@ -60,5 +60,4 @@ private:
 	static SceneManager* m_instance;
 	int m_currentSceneIndex{ 0 };
 	std::vector<Scene*> m_scenes{};
-
 };
