@@ -5,8 +5,9 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include "sceneManager/sceneManager.h"
-#include "sceneManager/globalCamera.h"
+#include "app/sceneManager.h"
+#include "app/globalCamera.h"
+#include "app/drawTool.hpp"
 
 #pragma region ImGui lifecycle funcs
 void initImGUI()
@@ -54,6 +55,7 @@ int main()
     R2D::Renderer2D::SetWindowTitle("Fox Box - 2D Physics Engine");
     initImGUI();
 	GlobalCamera::Init();
+    DrawTool::Init();
     SceneManager::getInstance()->setCurrentScene(0); 
 
     while (!R2D::Renderer2D::GetShouldGLFWWindowClose())
@@ -73,6 +75,7 @@ int main()
         R2D::Renderer2D::EndFrame();
     }
     SceneManager::getInstance()->cleanup(); 
+    DrawTool::Cleanup();
 	GlobalCamera::CleanUp();
     shutdownImGUI();
     R2D::Renderer2D::Shutdown();

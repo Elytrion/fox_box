@@ -43,11 +43,23 @@ void GlobalCamera::CleanUp()
 void GlobalCamera::UpdateUniformBuffer()
 {
 	CameraUniform data{};
+
 	data.view = g_camera.getViewMatrix();
 	data.projection = g_camera.getProjectionMatrix();
-	data.viewProjection = g_camera.getViewProjectionMatrix();
+	data.viewProjection =
+		g_camera.getViewProjectionMatrix();
 
-	g_cameraUniformBuffer.update(&data, sizeof(CameraUniform));
+	data.positionZoom = glm::vec4(
+		g_camera.getPosition(),
+		0.0f,
+		g_camera.getZoom()
+	);
+
+	g_cameraUniformBuffer.update(
+		&data,
+		sizeof(CameraUniform)
+	);
+	
 }
 void GlobalCamera::BindUniformBuffer()
 {
