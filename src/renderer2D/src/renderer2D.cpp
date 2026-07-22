@@ -185,6 +185,11 @@ namespace R2D
 		glViewport(x, y, width, height);
 	}
 
+	glm::uvec2 Renderer2D::GetViewportSize()
+	{
+		return { m_context.width, m_context.height };
+	}
+
 	void Renderer2D::ClearColour(float red, float green, float blue, float alpha)
 	{
 		glClearColor(red, green, blue, alpha);

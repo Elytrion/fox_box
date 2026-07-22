@@ -63,7 +63,36 @@ namespace R2D
 			return screenDelta / m_zoom;
 		}
 
+		glm::vec2 screenToWorld(glm::vec2 screenPosition) const
+		{
+			const glm::vec2 viewport{
+				static_cast<float>(m_viewport.x),
+				static_cast<float>(m_viewport.y)
+			};
+			const glm::vec2 viewportCenter = viewport * 0.5f;
+
+			return {
+				m_position.x + (screenPosition.x - viewportCenter.x) / m_zoom,
+				m_position.y + (viewportCenter.y - screenPosition.y) / m_zoom
+			};
+		}
+
+		glm::vec2 worldToScreen(glm::vec2 worldPosition) const
+		{
+			const glm::vec2 viewport{
+				static_cast<float>(m_viewport.x),
+				static_cast<float>(m_viewport.y)
+			};
+			const glm::vec2 viewportCenter = viewport * 0.5f;
+
+			return {
+				(worldPosition.x - m_position.x) * m_zoom + viewportCenter.x,
+				viewportCenter.y - (worldPosition.y - m_position.y) * m_zoom
+			};
+		}
+
 		glm::vec2 getPosition() const { return m_position; }
+		glm::uvec2 getViewport() const { return m_viewport; }
 		float getZoom() const { return m_zoom; }
 
 	private:

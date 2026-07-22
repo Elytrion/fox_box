@@ -10,6 +10,9 @@ struct GlobalCamera
 	static void UpdateUniformBuffer();
 	static void BindUniformBuffer();
 
+	static glm::vec2 ScreenToWorld(glm::vec2 screenPosition);
+	static glm::vec2 WorldToScreen(glm::vec2 worldPosition);
+
 	static R2D::Camera2D& Get();
 	static const R2D::Camera2D& GetConst();
 };

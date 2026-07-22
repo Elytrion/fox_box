@@ -56,6 +56,7 @@ namespace R2D
 		static void PollGLEvents();
 
 		static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		static glm::uvec2 GetViewportSize();
 		static void ClearColour(float red = 0.1f, float green = 0.12f, float blue = 0.15f, float alpha = 1.f);
 		static void ClearDepth(float value = 1.f);
 		static void Clear();

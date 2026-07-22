@@ -36,6 +36,10 @@ void App::run()
     R2D::Renderer2D::BeginFrame();
     R2D::Renderer2D::PollGLEvents();
     beginFrameImGUI();
+
+    const glm::uvec2 viewportSize = R2D::Renderer2D::GetViewportSize();
+    GlobalCamera::Get().setViewport(viewportSize.x, viewportSize.y);
+
     GlobalCamera::UpdateUniformBuffer();
     GlobalCamera::BindUniformBuffer();
     {

@@ -66,6 +66,16 @@ void GlobalCamera::BindUniformBuffer()
 	g_cameraUniformBuffer.bindAsUniform(CAMERA_UBO_BINDING);
 }
 
+glm::vec2 GlobalCamera::ScreenToWorld(glm::vec2 screenPosition)
+{
+	return g_camera.screenToWorld(screenPosition);
+}
+
+glm::vec2 GlobalCamera::WorldToScreen(glm::vec2 worldPosition)
+{
+	return g_camera.worldToScreen(worldPosition);
+}
+
 R2D::Camera2D& GlobalCamera::Get()
 {
 	return g_camera;
